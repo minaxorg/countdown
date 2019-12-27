@@ -11,6 +11,10 @@ npm i --save @minax/countdown
 
 点击发送验证码，需要用户等待一分钟才允许再次发送，此时按钮应该有个一分钟的不可点击状态，且用户如果刷新/关闭浏览器再打开该页面时，该计时器状态仍然有效。
 
+## 在线 Demo
+
+[![Edit @minax/countdown Demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/admiring-babbage-00xf7?fontsize=14&hidenavigation=1&theme=dark)
+
 ## 使用方式
 
 ### 1. Hooks API `useCountDown`
@@ -68,4 +72,4 @@ lifecycle|'session' \| 'always'|false|'session'|持久化方式
 
 lifecycle 说明：
  - 使用 'session'，底层使用 sessionStorage 储存数据，即倒计时只在当前页面周期内生效，用户关闭页面或打开新的页面时，计时器失效。
- - 使用 'always',底层使用 localStorage 存储数据，用户只要不清除浏览器数据，则该计时器一直生效。
+ - 使用 'always'，底层使用 localStorage 存储数据，用户只要不清除浏览器数据，则该计时器一直生效。
