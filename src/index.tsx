@@ -49,7 +49,7 @@ const useCountDown = (
       return 0
     } else {
       expiredTime = +expiredTime
-      if (isNaN(expiredTime)) {
+      if (Number.isNaN(expiredTime)) {
         return 0
       } else {
         const restTime = Math.floor(((expiredTime - Date.now()) / 1000))
