@@ -2,7 +2,10 @@ import React, { useEffect, useCallback, useState, useMemo } from 'react'
 
 type Options = {
   total?: number
-  lifecycle?: 'always' | 'session'
+  lifecycle?: 'always' | 'session' | {
+    setter: (key: string, value: string) => any,
+    getter: (key: string) => string | null | undefined
+  }
 }
 
 const useCountDown = (
@@ -15,15 +18,23 @@ const useCountDown = (
     const saveKey = `__${timerKey}`
     const getSaveData = () => '' + (Date.now() + total * 1000)
     let getter, setter
-    switch (lifecycle) {
-      case 'always':
-        setter = () => localStorage.setItem(saveKey, getSaveData())
-        getter = () => localStorage.getItem(saveKey)
-        break
-      case 'session':
-        setter = () => sessionStorage.setItem(saveKey, getSaveData())
-        getter = () => sessionStorage.getItem(saveKey)
-        break
+    if (typeof lifecycle === 'object') {
+      if (!lifecycle.setter || !lifecycle.getter) {
+        throw new TypeError('Please provide setter and getter function!')
+      }
+      setter = () => void lifecycle.setter(saveKey, getSaveData())
+      getter = () => lifecycle.getter(saveKey)
+    } else {
+      switch (lifecycle) {
+        case 'always':
+          setter = () => void localStorage.setItem(saveKey, getSaveData())
+          getter = () => localStorage.getItem(saveKey)
+          break
+        case 'session':
+          setter = () => void sessionStorage.setItem(saveKey, getSaveData())
+          getter = () => sessionStorage.getItem(saveKey)
+          break
+      }
     }
     return [setter, getter] as [() => undefined, () => string | null | number]
   }, [options, timerKey])
