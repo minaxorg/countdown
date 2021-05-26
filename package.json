@@ -28,7 +28,15 @@
     "react": ">=16.8.0"
   },
   "devDependencies": {
-    "@types/react": "^16.9.25",
-    "react": "^16.13.1"
+    "@types/react": "^17.0.8",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "eslint": "^7.27.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.23.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "eslint-plugin-react": "^7.23.2",
+    "react": "^17.0.2"
   }
 }

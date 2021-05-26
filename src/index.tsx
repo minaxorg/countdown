@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useMemo } from 'react'
+import { useEffect, useCallback, useState, useMemo } from 'react'
 
 type Options = {
   total?: number
@@ -11,7 +11,7 @@ type Options = {
 const useCountDown = (
   timerKey: string,
   options?: Options
-) => {
+): [number, () => void] => {
   const [addData, getData] = useMemo(() => {
     const total = options?.total ?? 60
     const lifecycle = options?.lifecycle ?? 'session'
@@ -22,21 +22,27 @@ const useCountDown = (
       if (!lifecycle.setter || !lifecycle.getter) {
         throw new TypeError('Please provide setter and getter function!')
       }
-      setter = () => void lifecycle.setter(saveKey, getSaveData())
+      setter = () => {
+        lifecycle.setter(saveKey, getSaveData())
+      }
       getter = () => lifecycle.getter(saveKey)
     } else {
       switch (lifecycle) {
         case 'always':
-          setter = () => void localStorage.setItem(saveKey, getSaveData())
+          setter = () => {
+            localStorage.setItem(saveKey, getSaveData())
+          }
           getter = () => localStorage.getItem(saveKey)
           break
         case 'session':
-          setter = () => void sessionStorage.setItem(saveKey, getSaveData())
+          setter = () => {
+            sessionStorage.setItem(saveKey, getSaveData())
+          }
           getter = () => sessionStorage.getItem(saveKey)
           break
       }
     }
-    return [setter, getter] as [() => undefined, () => string | null | number]
+    return [setter, getter]
   }, [options, timerKey])
 
   const resetCountDown = useCallback(() => {
@@ -44,7 +50,7 @@ const useCountDown = (
   }, [addData])
 
   const getRestTime = useCallback(() => {
-    let expiredTime: string | null | number = getData()
+    let expiredTime: string | number | null | undefined = getData()
     if (!expiredTime) {
       return 0
     } else {
@@ -75,13 +81,13 @@ const useCountDown = (
   return [
     restTime,
     resetCountDown
-  ] as [number, () => undefined]
+  ]
 }
 
 const CountDownProvider = ({ id, children, options }: {
   id: string,
   options?: Options,
-  children: (restTime: number, resetCountDown: () => undefined) => any
+  children: (restTime: number, resetCountDown: () => void) => any
 }) => {
   const [restTime, resetCountDown] = useCountDown(id, options)
   return children(restTime, resetCountDown)
