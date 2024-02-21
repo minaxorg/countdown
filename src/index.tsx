@@ -1,10 +1,10 @@
-import { useEffect, useCallback, useState, useMemo } from 'react'
+import { useEffect, useCallback, useState, useMemo, type ReactNode } from 'react'
 
-type Options = {
+interface Options {
   total?: number
   lifecycle?: 'always' | 'session' | {
-    setter: (key: string, value: string) => any,
-    getter: (key: string) => string | null | undefined
+    setter: (key: string, value: string) => void
+    getter: (key: string) => string | null
   }
 }
 
@@ -15,53 +15,55 @@ const useCountDown = (
   const [addData, getData] = useMemo(() => {
     const total = options?.total ?? 60
     const lifecycle = options?.lifecycle ?? 'session'
-    const saveKey = `__${timerKey}`
-    const getSaveData = () => '' + (Date.now() + total * 1000)
-    let getter, setter
-    if (typeof lifecycle === 'object') {
-      if (!lifecycle.setter || !lifecycle.getter) {
-        throw new TypeError('Please provide setter and getter function!')
-      }
-      setter = () => {
-        lifecycle.setter(saveKey, getSaveData())
-      }
-      getter = () => lifecycle.getter(saveKey)
-    } else {
+    const saveKey = `__MINAX_COUNTDOWN_${timerKey.toUpperCase()}`
+    const getExpiredStr = () => (Date.now() + total * 1000).toString()
+
+    let getter: () => string | null = () => null
+    let setter: () => void = () => {}
+
+    if (typeof lifecycle === 'string') {
       switch (lifecycle) {
-        case 'always':
+        case 'always': {
           setter = () => {
-            localStorage.setItem(saveKey, getSaveData())
+            localStorage.setItem(saveKey, getExpiredStr())
           }
           getter = () => localStorage.getItem(saveKey)
           break
+        }
         case 'session':
+        {
           setter = () => {
-            sessionStorage.setItem(saveKey, getSaveData())
+            sessionStorage.setItem(saveKey, getExpiredStr())
           }
           getter = () => sessionStorage.getItem(saveKey)
           break
+        }
+        default:
+          throw new SyntaxError('Please provide correct lifecycle!')
       }
+    } else if (typeof lifecycle === 'object') {
+      if (!lifecycle.setter || !lifecycle.getter) {
+        throw new SyntaxError('Please provide setter and getter function!')
+      }
+
+      setter = () => {
+        lifecycle.setter(saveKey, getExpiredStr())
+      }
+      getter = () => lifecycle.getter(saveKey)
     }
-    return [setter, getter]
+
+    return [setter, () => {
+      try {
+        return parseInt(getter() ?? '0', 10)
+      } catch {
+        return 0
+      }
+    }] as const
   }, [options, timerKey])
 
-  const resetCountDown = useCallback(() => {
-    addData()
-  }, [addData])
-
   const getRestTime = useCallback(() => {
-    let expiredTime: string | number | null | undefined = getData()
-    if (!expiredTime) {
-      return 0
-    } else {
-      expiredTime = +expiredTime
-      if (Number.isNaN(expiredTime)) {
-        return 0
-      } else {
-        const restTime = Math.floor(((expiredTime - Date.now()) / 1000))
-        return restTime < 0 ? 0 : restTime
-      }
-    }
+    const restTime = Math.floor(((getData() - Date.now()) / 1000))
+    return restTime < 0 ? 0 : restTime
   }, [getData])
 
   const [restTime, setRestTime] = useState(getRestTime())
@@ -73,10 +75,13 @@ const useCountDown = (
         setRestTime(newRestTime)
       }
     }, 500)
+
     return () => {
       clearInterval(timer)
     }
   }, [getRestTime, restTime])
+
+  const resetCountDown = addData
 
   return [
     restTime,
@@ -85,11 +90,12 @@ const useCountDown = (
 }
 
 const CountDownProvider = ({ id, children, options }: {
-  id: string,
-  options?: Options,
-  children: (restTime: number, resetCountDown: () => void) => any
+  id: string
+  options?: Options
+  children: (restTime: number, resetCountDown: () => void) => ReactNode
 }) => {
   const [restTime, resetCountDown] = useCountDown(id, options)
+
   return children(restTime, resetCountDown)
 }
 
