@@ -13,7 +13,7 @@ npm i --save @minax/countdown
 
 ## 在线 Demo
 
-[![Edit @minax/countdown Demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/admiring-babbage-00xf7?fontsize=14&hidenavigation=1&theme=dark)
+[![Edit @minax/countdown Demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/p/devbox/v3tjqz?file=%2Fsrc%2Findex.jsx%3A10%2C1)
 
 ## 使用方式
 
