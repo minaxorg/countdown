@@ -11,7 +11,7 @@ interface Options {
 const useCountDown = (
   timerKey: string,
   options?: Options
-): [number, () => void] => {
+) => {
   const [addData, getData] = useMemo(() => {
     const total = options?.total ?? 60
     const lifecycle = options?.lifecycle ?? 'session'
@@ -86,7 +86,7 @@ const useCountDown = (
   return [
     restTime,
     resetCountDown
-  ]
+  ] as const
 }
 
 const CountDownProvider = ({ id, children, options }: {
