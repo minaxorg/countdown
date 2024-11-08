@@ -8,7 +8,7 @@ interface Options {
   }
 }
 
-const useCountDown = (
+export const useCountDown = (
   timerKey: string,
   options?: Options
 ) => {
@@ -92,7 +92,7 @@ const useCountDown = (
   ] as const
 }
 
-const CountDownProvider = ({ id, children, options }: {
+export const CountDownProvider = ({ id, children, options }: {
   id: string
   options?: Options
   children: (restTime: number, resetCountDown: () => void) => ReactNode
@@ -101,5 +101,3 @@ const CountDownProvider = ({ id, children, options }: {
 
   return children(restTime, resetCountDown)
 }
-
-export { useCountDown, CountDownProvider }
