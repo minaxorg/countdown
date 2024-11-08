@@ -81,7 +81,10 @@ const useCountDown = (
     }
   }, [getRestTime, restTime])
 
-  const resetCountDown = addData
+  const resetCountDown = () => {
+    addData()
+    setRestTime(getRestTime())
+  }
 
   return [
     restTime,
